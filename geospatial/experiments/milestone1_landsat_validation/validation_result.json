@@ -1,0 +1,16 @@
+{
+  "status": "fail",
+  "dataset": "LANDSAT/LC08/C02/T1_L2, LANDSAT/LC09/C02/T1_L2",
+  "aoi": "Temporary Test AOI (Mumbai bounding box subset)",
+  "start_date": "2023-03-01",
+  "end_date": "2023-05-31",
+  "scene_count": 0,
+  "landsat8_scene_count": 0,
+  "landsat9_scene_count": 0,
+  "usable_scene_count": 0,
+  "cloud_filter": "< 20% (Temporary criteria for evaluation)",
+  "acquisition_dates": [],
+  "notes": [
+    "Earth Engine authentication required. Run `earthengine authenticate`."
+  ]
+}
