@@ -3,16 +3,16 @@
   "features": [
     {
       "type": "Feature",
-      "id": "mumbai_450m_72.84_19.01",
+      "id": "dhanbad_450m_86.42_23.79",
       "geometry": {
         "type": "Point",
-        "coordinates": [72.84, 19.01]
+        "coordinates": [86.42, 23.79]
       },
       "properties": {
         "schema_version": "1.0",
-        "feature_id": "mumbai_450m_72.84_19.01",
-        "city": "mumbai",
-        "lst_c": 38.7,
+        "feature_id": "dhanbad_450m_86.42_23.79",
+        "city": "dhanbad",
+        "lst_c": 42.6,
         "lst_anomaly_c": null,
         "source": "Landsat Collection 2 Level 2",
         "satellite": "Landsat 8/9",
@@ -22,12 +22,7 @@
         "resolution_m_source": 30,
         "resolution_m_sample": 450,
         "coordinate_reference_system": "EPSG:4326",
-        "data_quality": "validated",
-        "valid_pixel_percent": 100.0,
-        "ndvi_mean": 0.45,
-        "ndbi_mean": -0.12,
-        "ndwi_mean": -0.25,
-        "land_cover_class": "urban"
+        "data_quality": "validated"
       }
     }
   ]

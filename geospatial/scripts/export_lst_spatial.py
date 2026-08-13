@@ -48,17 +48,38 @@ def export_spatial_lst(city_key, scale=300):
         coords = feat['geometry']['coordinates']
         lst = feat['properties'].get('LST_Celsius')
         
+        import datetime
+        
         if lst is not None:
             lst_values.append(lst)
+            feature_id = f"{city_key}_{scale}m_{round(coords[0], 5)}_{round(coords[1], 5)}"
             geojson_features.append({
                 "type": "Feature",
+                "id": feature_id,
                 "geometry": {
                     "type": "Point",
                     "coordinates": coords
                 },
                 "properties": {
+                    "schema_version": "1.0",
+                    "feature_id": feature_id,
                     "city": city_key,
-                    "lst_c": round(lst, 2)
+                    "lst_c": round(lst, 2),
+                    "lst_anomaly_c": None,
+                    "source": "Landsat Collection 2 Level 2",
+                    "satellite": "Landsat 8/9",
+                    "date_period_start": DEFAULT_DATE_RANGE["start"],
+                    "date_period_end": DEFAULT_DATE_RANGE["end"],
+                    "processing_date": datetime.datetime.now().strftime("%Y-%m-%d"),
+                    "resolution_m_source": 30,
+                    "resolution_m_sample": scale,
+                    "coordinate_reference_system": "EPSG:4326",
+                    "data_quality": "validated",
+                    "valid_pixel_percent": None,
+                    "ndvi_mean": None,
+                    "ndbi_mean": None,
+                    "ndwi_mean": None,
+                    "land_cover_class": None
                 }
             })
             
