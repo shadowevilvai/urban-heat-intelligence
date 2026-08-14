@@ -6,21 +6,22 @@ Verify the availability of Landsat 8/9 Collection 2 Level 2 imagery for our Area
 ## Running the Experiment
 
 1. Ensure you have the Google Earth Engine Python API installed:
-   ```bash
+   `ash
    pip install earthengine-api
-   ```
+   `
 
 2. If this is your first time using Earth Engine on this machine, authenticate:
-   ```bash
+   `ash
    earthengine authenticate
-   ```
+   `
 
-3. Run the validation script:
-   ```bash
-   python validate_landsat.py
-   ```
+3. Run the validation scripts to check spatial outputs and integration payloads:
+   `ash
+   python geospatial/scripts/validate_spatial_lst.py
+   python geospatial/scripts/validate_integration_payload.py
+   `
 
-4. Check the generated `validation_result.json` file for the outputs (dataset ID, scene counts, cloud information, and usable scene counts).
+4. Check the generated _validation.json files in geospatial/outputs/lst/ for detailed statistical analysis and contract compliance.
 
 ## Important Notes
 - The AOI used here is a temporary bounding box in Mumbai for fast validation. **The final AOI requires team confirmation.**
