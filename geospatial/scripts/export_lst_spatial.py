@@ -13,7 +13,7 @@ from geospatial.src.lst_processor import get_lst_composite
 from geospatial.src.landsat import get_aoi
 from geospatial.Config.study_areas import DEFAULT_DATE_RANGE
 
-def export_spatial_lst(city_key, scale=300):
+def export_spatial_lst(city_key, scale=450):
     """
     Exports a coarse sample of the LST composite as GeoJSON points.
     
