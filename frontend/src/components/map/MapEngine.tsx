@@ -3,19 +3,26 @@ import Map, { Source, Layer, NavigationControl } from 'react-map-gl/maplibre';
 import type { MapLayerMouseEvent } from 'react-map-gl/maplibre';
 import type { SpatialFeature, SpatialFeatureCollection } from '../../data/types';
 import mockFeatures from '../../data/mock/features.json';
+import MapLegend from './MapLegend';
 
 interface MapEngineProps {
+  activeLayerId: string | null;
   onSelectFeature: (feature: SpatialFeature | null) => void;
 }
 
-export default function MapEngine({ onSelectFeature }: MapEngineProps) {
+export default function MapEngine({ activeLayerId, onSelectFeature }: MapEngineProps) {
   // Use mock data for now
   const geojsonData = useMemo<SpatialFeatureCollection>(() => mockFeatures as SpatialFeatureCollection, []);
 
   const onClick = (event: MapLayerMouseEvent) => {
+    // Only allow clicking features if the active layer is lst since our mock data is just lst
+    if (activeLayerId !== 'lst') {
+      onSelectFeature(null);
+      return;
+    }
+
     const feature = event.features?.[0];
     if (feature) {
-      // MapLibre's feature object needs to be cast to our SpatialFeature type
       onSelectFeature(feature as unknown as SpatialFeature);
     } else {
       onSelectFeature(null);
@@ -23,7 +30,7 @@ export default function MapEngine({ onSelectFeature }: MapEngineProps) {
   };
 
   const onMouseEnter = (event: MapLayerMouseEvent) => {
-    if (event.target) {
+    if (event.target && activeLayerId === 'lst') {
       event.target.getCanvas().style.cursor = 'pointer';
     }
   };
@@ -44,7 +51,7 @@ export default function MapEngine({ onSelectFeature }: MapEngineProps) {
           zoom: 11
         }}
         mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
-        interactiveLayerIds={['lst-heatmap-points']}
+        interactiveLayerIds={activeLayerId === 'lst' ? ['lst-heatmap-points'] : []}
         onClick={onClick}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
@@ -53,6 +60,9 @@ export default function MapEngine({ onSelectFeature }: MapEngineProps) {
           <Layer
             id="lst-heatmap-points"
             type="circle"
+            layout={{
+              visibility: activeLayerId === 'lst' ? 'visible' : 'none'
+            }}
             paint={{
               'circle-radius': [
                 'interpolate',
@@ -78,15 +88,7 @@ export default function MapEngine({ onSelectFeature }: MapEngineProps) {
         
         <NavigationControl position="bottom-right" showCompass={false} />
         
-        {/* Simple Legend overlay */}
-        <div className="absolute bottom-6 left-6 bg-zinc-900/90 backdrop-blur border border-zinc-800 rounded-md p-3 z-10">
-          <h4 className="text-xs font-semibold text-zinc-300 mb-2 uppercase tracking-wider">LST Observation (°C)</h4>
-          <div className="flex items-center gap-2 text-xs text-zinc-400">
-            <span>35°</span>
-            <div className="w-32 h-2 rounded-full bg-gradient-to-r from-yellow-300 via-orange-500 to-red-600"></div>
-            <span>45°+</span>
-          </div>
-        </div>
+        <MapLegend activeLayerId={activeLayerId} />
       </Map>
     </div>
   );
