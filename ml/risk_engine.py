@@ -1,9 +1,8 @@
 from typing import Dict, List, Optional, Tuple
-from schemas import HotspotProperties
 
 # Base weights for features within their groups
 EXPOSURE_WEIGHTS = {
-    "norm_lst_mean": 0.4,
+    "norm_lst_c": 0.4,
     "norm_lst_anomaly": 0.6
 }
 

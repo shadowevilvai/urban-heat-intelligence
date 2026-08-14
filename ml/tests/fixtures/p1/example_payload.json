@@ -1,0 +1,28 @@
+{
+  "type": "Feature",
+  "properties": {
+    "schema_version": "1.0",
+    "feature_id": "real_p1_example",
+    "city": "Chennai",
+    "lst_c": 39.5,
+    "lst_anomaly_c": null,
+    "ndvi_mean": 0.25,
+    "ndbi_mean": 0.45,
+    "ndwi_mean": 0.10,
+    "land_cover_class": "urban",
+    "source": "Sentinel-3",
+    "satellite": "Sentinel-3A",
+    "date_period_start": "2026-04-01",
+    "date_period_end": "2026-06-30",
+    "processing_date": "2026-08-14",
+    "resolution_m_source": 1000,
+    "resolution_m_sample": 1000,
+    "coordinate_reference_system": "EPSG:4326",
+    "data_quality": "good",
+    "valid_pixel_percent": 98.0
+  },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [80.2707, 13.0827]
+  }
+}

@@ -15,7 +15,7 @@ def test_get_risk_category():
 def test_calculate_risk_complete():
     # Simulate completely populated normalized features
     features = {
-        "norm_lst_mean": 0.5,
+        "norm_lst_c": 0.5,
         "norm_lst_anomaly": 0.8,
         "norm_inv_ndvi": 0.2,
         "norm_ndbi": 0.9,
@@ -48,7 +48,7 @@ def test_calculate_risk_complete():
 def test_calculate_risk_missing_vuln_features():
     # Simulate missing NDVI and NDWI
     features = {
-        "norm_lst_mean": 0.5,
+        "norm_lst_c": 0.5,
         "norm_lst_anomaly": 0.8,
         "norm_ndbi": 0.9
         # norm_inv_ndvi and norm_inv_ndwi missing
@@ -67,7 +67,7 @@ def test_calculate_risk_missing_vuln_features():
 def test_calculate_risk_no_vuln_data():
     # Only exposure data
     features = {
-        "norm_lst_mean": 0.5,
+        "norm_lst_c": 0.5,
         "norm_lst_anomaly": 0.8
     }
     
@@ -84,3 +84,23 @@ def test_calculate_risk_no_vuln_data():
     assert len(result["contributors"]) == 2
     total_importance = sum(c["importance"] for c in result["contributors"])
     assert abs(total_importance - 1.0) < 1e-4
+
+def test_calculate_risk_null_anomaly():
+    # Simulate missing anomaly
+    features = {
+        "norm_lst_c": 0.5,
+        # norm_lst_anomaly missing
+        "norm_inv_ndvi": 0.2,
+        "norm_ndbi": 0.9,
+        "norm_inv_ndwi": 0.5
+    }
+    
+    result = calculate_risk(features)
+    
+    # Exposure Score (only LST available, so weight is 1.0) = 0.5 * 1.0 = 0.5
+    # Vuln Score = 0.54
+    # Risk Score = (0.5 * 0.5 + 0.54 * 0.5) * 100 = (0.25 + 0.27) * 100 = 52.0
+    
+    assert abs(result["risk_score"] - 52.0) < 1e-4
+    assert abs(result["vulnerability_score"] - 54.0) < 1e-4
+    assert result["risk_category"] == "moderate"

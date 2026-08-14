@@ -1,19 +1,14 @@
 from typing import List, Optional
 from pydantic import BaseModel, Field, field_validator
 
-class HotspotProperties(BaseModel):
+class P1FeatureProperties(BaseModel):
     # CORE FIELDS
-    hotspot_id: str
+    schema_version: str
+    feature_id: str
     city: str
-    lst_mean_c: float
-    lst_min_c: float
-    lst_max_c: float
-    lst_anomaly_c: float
+    lst_c: float
+    lst_anomaly_c: Optional[float] = None
     
-    # Excluded from risk logic, but part of schema
-    heat_class: str
-    hotspot_score: float
-
     # OPTIONAL ENVIRONMENTAL INDICATORS
     ndvi_mean: Optional[float] = None
     ndbi_mean: Optional[float] = None
@@ -23,33 +18,50 @@ class HotspotProperties(BaseModel):
     # DATA PROVENANCE & QUALITY
     source: str
     satellite: str
-    acquisition_date: str
+    date_period_start: str
+    date_period_end: str
     processing_date: str
-    cloud_cover_percent: float
-    resolution_m: float
+    resolution_m_source: int
+    resolution_m_sample: int
     coordinate_reference_system: str
     data_quality: str
-    valid_pixel_percent: float
-    confidence: float
+    valid_pixel_percent: Optional[float] = None
 
-    @field_validator('cloud_cover_percent', 'valid_pixel_percent', 'confidence', mode='before')
+    @field_validator('schema_version')
+    @classmethod
+    def validate_schema_version(cls, v):
+        if v != "1.0":
+            raise ValueError(f"Unsupported schema version: {v}")
+        return v
+
+    @field_validator('valid_pixel_percent', mode='before')
     @classmethod
     def validate_percentages(cls, v):
+        if v is None:
+            return v
         if v < 0.0 or v > 100.0:
-            if v <= 1.0 and v >= 0.0:  # Allow 0-1 range for confidence/percentages
-                return v
             raise ValueError(f"Value {v} out of bounds")
         return v
 
-class HotspotGeometry(BaseModel):
+class P1Geometry(BaseModel):
     type: str
     coordinates: List[float]
 
-class HotspotFeature(BaseModel):
+class P1Feature(BaseModel):
     type: str = "Feature"
-    properties: HotspotProperties
-    geometry: HotspotGeometry
+    id: Optional[str] = None
+    properties: P1FeatureProperties
+    geometry: P1Geometry
 
-class HotspotFeatureCollection(BaseModel):
+class P1FeatureCollection(BaseModel):
     type: str = "FeatureCollection"
-    features: List[HotspotFeature]
+    features: List[P1Feature]
+
+class P2InternalProperties(BaseModel):
+    """Internal model for features entering the risk engine."""
+    feature_id: str
+    lst_c: float
+    lst_anomaly_c: Optional[float] = None
+    ndvi_mean: Optional[float] = None
+    ndbi_mean: Optional[float] = None
+    ndwi_mean: Optional[float] = None
