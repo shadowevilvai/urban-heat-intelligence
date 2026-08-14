@@ -1,0 +1,27 @@
+{
+  "area_id": "mumbai",
+  "data_type": "land_surface_temperature",
+  "period": {
+    "start": "2023-03-01",
+    "end": "2023-05-31"
+  },
+  "source": "Landsat 8/9 Collection 2 Level 2",
+  "band": "ST_B10",
+  "unit": "celsius",
+  "resolution_m": 30,
+  "composite": "median",
+  "statistics": {
+    "min_c": 28.385978539999996,
+    "max_c": 53.65881842000002,
+    "mean_c": 38.2601059603442,
+    "median_c": 39.438157109753554
+  },
+  "valid_pixel_count": 517453,
+  "status": "success",
+  "limitations": [
+    "Represents Land Surface Temperature, not near-surface air temperature.",
+    "Does not directly represent human thermal comfort or heat-health risk.",
+    "Cloud, shadow, snow and fill pixels are masked.",
+    "Null/masked pixels represent unavailable valid observations."
+  ]
+}
