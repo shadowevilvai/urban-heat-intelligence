@@ -87,6 +87,13 @@ Parameters:
 {
   "id": "hs-001",
   "lst_celsius": 42.7,
+  "lst_min_c": 40.1,
+  "lst_max_c": 45.2,
+  "lst_anomaly_c": 4.2,
+  "ndvi_mean": 0.18,
+  "ndbi_mean": 0.52,
+  "ndwi_mean": 0.06,
+  "land_cover_class": "built_up",
   "risk_score": 87,
   "risk_category": "high",
   "vulnerability_score": 74,
