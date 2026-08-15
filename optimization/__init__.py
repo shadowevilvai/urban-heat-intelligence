@@ -6,14 +6,18 @@ Person 3 / Technical Lead: Mitigation Simulation & Optimization
 
 from optimization.domain import (
     AreaUnit,
+    CoolRoofScenarioParams,
     CurrencyUnit,
     EvidenceLevel,
     HotspotProfile,
     InterventionSpecification,
     InterventionType,
+    SimulationResult,
+    SpatialConfiguration,
     SuitabilityAssessment,
     SuitabilityCategory,
     TemperatureUnit,
+    TreeCanopyScenarioParams,
     ValueStatus,
 )
 from optimization.config import (
@@ -38,6 +42,11 @@ from optimization.suitability import (
     SuitabilityScorer,
     default_scorer,
 )
+from optimization.simulator import (
+    ScenarioSimulator,
+    default_simulator,
+    simulate_scenario,
+)
 from optimization.mock_data import (
     MOCK_HOTSPOTS_AOI_001,
     MockHotspotRepository,
@@ -47,14 +56,18 @@ from optimization.mock_data import (
 __all__ = [
     # Domain & Enums
     "AreaUnit",
+    "CoolRoofScenarioParams",
     "CurrencyUnit",
     "EvidenceLevel",
     "HotspotProfile",
     "InterventionSpecification",
     "InterventionType",
+    "SimulationResult",
+    "SpatialConfiguration",
     "SuitabilityAssessment",
     "SuitabilityCategory",
     "TemperatureUnit",
+    "TreeCanopyScenarioParams",
     "ValueStatus",
     # Config & Versions
     "DEFAULT_INTERVENTIONS",
@@ -75,6 +88,10 @@ __all__ = [
     # Suitability
     "SuitabilityScorer",
     "default_scorer",
+    # Simulator
+    "ScenarioSimulator",
+    "default_simulator",
+    "simulate_scenario",
     # Mock Data
     "MOCK_HOTSPOTS_AOI_001",
     "MockHotspotRepository",

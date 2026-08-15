@@ -132,6 +132,13 @@ class HotspotProfile(BaseModel):
     risk_category: str = Field("high", description="Risk category: high, medium, or low")
     vulnerability_score: float = Field(50.0, ge=0.0, le=100.0, description="Socio-economic vulnerability score (0 - 100)")
     
+    # Optional Environmental & Geospatial Context (for safe ingestion of advanced datasets)
+    lst_anomaly_c: Optional[float] = Field(None, description="Local thermal anomaly relative to regional mean in °C")
+    ndvi_mean: Optional[float] = Field(None, ge=-1.0, le=1.0, description="Mean Normalized Difference Vegetation Index")
+    ndbi_mean: Optional[float] = Field(None, ge=-1.0, le=1.0, description="Mean Normalized Difference Built-up Index")
+    ndwi_mean: Optional[float] = Field(None, ge=-1.0, le=1.0, description="Mean Normalized Difference Water Index")
+    land_cover_class: Optional[str] = Field(None, description="Dominant land-cover classification name")
+    
     # Metadata & Scientific Provenance
     data_date: str = Field("2026-01-15", description="Observation or acquisition date (YYYY-MM-DD)")
     data_source: str = Field("Landsat Collection 2 Level 2", description="Data source name")
@@ -226,3 +233,101 @@ class SuitabilityAssessment(BaseModel):
     evidence_level: EvidenceLevel = Field(EvidenceLevel.LITERATURE_SUPPORTED)
     model_version: str = Field("suitability-v0.1")
     status: ValueStatus = Field(ValueStatus.SIMULATED)
+
+
+class SpatialConfiguration(str, Enum):
+    """Spatial configuration patterns for urban tree planting."""
+    DISPERSED = "dispersed"           # Standard distributed street/parcel trees (1.0x baseline)
+    CLUSTERED = "clustered"           # Park / dense grove cluster (1.15x park cool island co-benefit)
+    LINEAR_CORRIDOR = "linear_corridor" # Linear green corridor / street canyon (1.05x microclimate shading)
+
+
+class TreeCanopyScenarioParams(BaseModel):
+    """
+    Configurable microclimate and morphological scenario parameters for tree canopy simulation.
+    Allows testing diverse species densities, maturity heights, and spatial layouts.
+    """
+    canopy_density: float = Field(
+        0.80,
+        ge=0.10,
+        le=1.0,
+        description="Fractional foliage crown density / leaf area index factor [0.10 - 1.0]"
+    )
+    tree_height_m: Optional[float] = Field(
+        None,
+        ge=1.0,
+        le=45.0,
+        description="Estimated average tree height in meters (affects mature shading footprint)"
+    )
+    spatial_configuration: SpatialConfiguration = Field(
+        SpatialConfiguration.DISPERSED,
+        description="Spatial planting configuration pattern: 'dispersed', 'clustered', 'linear_corridor'"
+    )
+
+
+class CoolRoofScenarioParams(BaseModel):
+    """
+    Configurable physical surface and optical parameters for cool roof simulation.
+    Allows testing specific baseline roof coatings against target high-albedo materials.
+    """
+    baseline_albedo: float = Field(
+        0.18,
+        ge=0.05,
+        le=0.50,
+        description="Baseline solar reflectance / albedo of existing roof materials"
+    )
+    intervention_albedo: float = Field(
+        0.68,
+        ge=0.30,
+        le=0.95,
+        description="Target solar reflectance / albedo of cool roof coating"
+    )
+    thermal_emissivity: float = Field(
+        0.90,
+        ge=0.50,
+        le=1.0,
+        description="Thermal infrared surface emissivity [0.50 - 1.0]"
+    )
+
+
+class SimulationResult(BaseModel):
+    """
+    Structured domain result of a mitigation scenario simulation.
+    Captures complete scientific provenance, physical footprint, thermal projections,
+    parameter-driven configuration, uncertainty bounds, assumptions, and limitations.
+    """
+    hotspot_id: str = Field(..., description="Target hotspot identifier")
+    intervention: InterventionType = Field(..., description="Intervention type evaluated")
+    intensity: float = Field(..., ge=0.0, le=1.0, description="Intervention implementation intensity")
+    
+    # Thermal Projections (Observed Baseline vs Simulated Projection)
+    baseline_lst_celsius: float = Field(..., description="Baseline observed Land Surface Temperature in °C")
+    projected_lst_celsius: float = Field(..., description="Simulated projected Land Surface Temperature in °C")
+    estimated_change_celsius: float = Field(..., description="Estimated temperature change in °C (negative indicates cooling)")
+    cooling_uncertainty_range_celsius: tuple[float, float] = Field(
+        ...,
+        description="Uncertainty interval [max_cooling_delta, min_cooling_delta] in °C"
+    )
+    
+    # Spatial & Physical Footprint
+    eligible_area_m2: float = Field(..., ge=0.0, description="Physically eligible hotspot surface area in m^2")
+    treated_area_m2: float = Field(..., ge=0.0, description="Estimated treated surface area in m^2")
+    treated_area_fraction: float = Field(..., ge=0.0, le=1.0, description="Fraction of total hotspot area treated")
+    
+    # Economic Projections
+    estimated_cost: float = Field(..., ge=0.0, description="Estimated capital + installation cost")
+    currency: CurrencyUnit = Field(CurrencyUnit.USD, description="Cost currency")
+    
+    # Parameter Breakdown
+    scenario_parameters: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Explicit physical, optical, and morphological parameters used in this simulation"
+    )
+    
+    # Scientific Governance & Traceability
+    evidence_level: EvidenceLevel = Field(EvidenceLevel.LITERATURE_SUPPORTED)
+    assumptions: List[str] = Field(default_factory=list, description="Explicit scenario assumptions and scientific citations")
+    limitations: List[str] = Field(default_factory=list, description="Model limitations and boundary conditions")
+    model_version: str = Field("simulation-v0.1")
+    status: ValueStatus = Field(ValueStatus.SIMULATED, description="Explicit value status: strictly 'simulated'")
+
