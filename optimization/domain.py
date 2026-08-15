@@ -331,3 +331,50 @@ class SimulationResult(BaseModel):
     model_version: str = Field("simulation-v0.1")
     status: ValueStatus = Field(ValueStatus.SIMULATED, description="Explicit value status: strictly 'simulated'")
 
+
+class HotspotAllocationDetail(BaseModel):
+    """
+    Recommended intervention allocation and impact projection for a single hotspot.
+    """
+    hotspot_id: str
+    hotspot_name: Optional[str] = None
+    intervention: InterventionType
+    allocation_fraction: float = Field(..., ge=0.0, le=1.0, description="Fraction of eligible capacity allocated [0.0 - 1.0]")
+    treated_area_m2: float = Field(..., ge=0.0, description="Treated ground or roof area in m^2")
+    eligible_area_m2: float = Field(..., ge=0.0, description="Total eligible ground or roof area in m^2")
+    estimated_cost: float = Field(..., ge=0.0, description="Estimated implementation cost")
+    expected_cooling_celsius: float = Field(..., ge=0.0, description="Magnitude of expected LST cooling in °C")
+    projected_lst_celsius: float = Field(..., description="Projected post-intervention LST in °C")
+    risk_score: float = Field(..., description="Baseline heat-risk score")
+    limiting_constraints: List[str] = Field(default_factory=list, description="Binding constraints for this allocation")
+
+
+class OptimizationResult(BaseModel):
+    """
+    Structured domain result of multi-hotspot constrained portfolio optimization.
+    Distinguishes RECOMMENDED decision variables from SIMULATED and OBSERVED values.
+    """
+    status: str = Field(..., description="Optimization status: 'optimal', 'infeasible', 'budget_exceeded'")
+    budget: float = Field(..., ge=0.0, description="Total available budget considered in optimization")
+    estimated_total_cost: float = Field(..., ge=0.0, description="Total estimated cost across all recommended allocations")
+    expected_cooling: float = Field(..., ge=0.0, description="Area-weighted expected LST cooling in °C across target hotspots")
+    
+    # Portfolio-level Summary (Matches docs/API_CONTRACT.md schema)
+    recommendations: List[Dict[str, Any]] = Field(
+        default_factory=list,
+        description="Aggregate portfolio allocation share by intervention type"
+    )
+    
+    # Granular Hotspot Allocations
+    hotspot_allocations: List[HotspotAllocationDetail] = Field(
+        default_factory=list,
+        description="Detailed per-hotspot allocation breakdown"
+    )
+    
+    # Traceability & Governance
+    limiting_constraints: List[str] = Field(default_factory=list, description="Binding constraints across the portfolio")
+    evidence_level: EvidenceLevel = Field(EvidenceLevel.LITERATURE_SUPPORTED)
+    assumptions: List[str] = Field(default_factory=list, description="Assumptions governing the optimization")
+    model_version: str = Field("optimizer-v0.1")
+    value_status: ValueStatus = Field(ValueStatus.RECOMMENDED, description="Explicit value status: 'recommended'")
+

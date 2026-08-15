@@ -9,9 +9,11 @@ from optimization.domain import (
     CoolRoofScenarioParams,
     CurrencyUnit,
     EvidenceLevel,
+    HotspotAllocationDetail,
     HotspotProfile,
     InterventionSpecification,
     InterventionType,
+    OptimizationResult,
     SimulationResult,
     SpatialConfiguration,
     SuitabilityAssessment,
@@ -47,6 +49,11 @@ from optimization.simulator import (
     default_simulator,
     simulate_scenario,
 )
+from optimization.optimizer import (
+    PortfolioOptimizer,
+    default_optimizer,
+    optimize_interventions,
+)
 from optimization.mock_data import (
     MOCK_HOTSPOTS_AOI_001,
     MockHotspotRepository,
@@ -59,9 +66,11 @@ __all__ = [
     "CoolRoofScenarioParams",
     "CurrencyUnit",
     "EvidenceLevel",
+    "HotspotAllocationDetail",
     "HotspotProfile",
     "InterventionSpecification",
     "InterventionType",
+    "OptimizationResult",
     "SimulationResult",
     "SpatialConfiguration",
     "SuitabilityAssessment",
@@ -92,6 +101,10 @@ __all__ = [
     "ScenarioSimulator",
     "default_simulator",
     "simulate_scenario",
+    # Optimizer
+    "PortfolioOptimizer",
+    "default_optimizer",
+    "optimize_interventions",
     # Mock Data
     "MOCK_HOTSPOTS_AOI_001",
     "MockHotspotRepository",
