@@ -4,10 +4,10 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from schemas import P1Feature, P1FeatureCollection, P1FeatureProperties
-from test_fixtures import MOCK_HOTSPOT_GEOJSON
-from preprocessing import preprocess_features, clip_and_scale
-from adapter import adapt_p1_to_p2
+from ml.schemas import P1Feature, P1FeatureCollection, P1FeatureProperties
+from ml.tests.test_fixtures import MOCK_HOTSPOT_GEOJSON
+from ml.preprocessing import preprocess_features, clip_and_scale
+from ml.adapter import adapt_p1_to_p2
 
 def test_clip_and_scale():
     assert clip_and_scale(30.0, 25.0, 55.0) == 5.0 / 30.0

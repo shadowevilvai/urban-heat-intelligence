@@ -1,5 +1,5 @@
 from typing import Dict
-from schemas import P2InternalProperties
+from .schemas import P2InternalProperties
 
 def clip_and_scale(value: float, min_val: float, max_val: float) -> float:
     """Clips a value to [min_val, max_val] and scales it to [0, 1]."""

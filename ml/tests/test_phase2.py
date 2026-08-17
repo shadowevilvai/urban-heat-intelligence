@@ -3,7 +3,7 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from risk_engine import calculate_risk, get_risk_category
+from ml.risk_engine import calculate_risk, get_risk_category
 
 def test_get_risk_category():
     assert get_risk_category(85.0) == "extreme"

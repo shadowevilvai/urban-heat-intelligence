@@ -1,4 +1,4 @@
-from schemas import P1FeatureProperties, P2InternalProperties
+from .schemas import P1FeatureProperties, P2InternalProperties
 
 def adapt_p1_to_p2(p1_props: P1FeatureProperties) -> P2InternalProperties:
     """Maps finalized P1 fields into the P2 internal representation."""

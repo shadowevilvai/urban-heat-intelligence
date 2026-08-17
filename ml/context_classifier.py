@@ -1,4 +1,4 @@
-from schemas import P1FeatureProperties
+from .schemas import P1FeatureProperties
 
 def classify_context(props: P1FeatureProperties) -> str:
     """

@@ -1,9 +1,9 @@
 from typing import Dict, Any
-from schemas import P1Feature
-from adapter import adapt_p1_to_p2, is_hotspot, generate_hotspot_id
-from preprocessing import preprocess_features
-from risk_engine import calculate_risk
-from context_classifier import classify_context
+from .schemas import P1Feature
+from .adapter import adapt_p1_to_p2, is_hotspot, generate_hotspot_id
+from .preprocessing import preprocess_features
+from .risk_engine import calculate_risk
+from .context_classifier import classify_context
 
 MODEL_VERSION = "env-risk-index-v1.0"
 

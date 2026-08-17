@@ -4,8 +4,8 @@ import os
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from context_classifier import classify_context
-from schemas import P1FeatureProperties
+from ml.context_classifier import classify_context
+from ml.schemas import P1FeatureProperties
 
 def create_mock_props(
     lst_c=30.0,

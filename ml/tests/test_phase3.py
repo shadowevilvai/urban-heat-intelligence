@@ -3,9 +3,9 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from test_fixtures import MOCK_HOTSPOT_GEOJSON
-from api_handler import process_hotspot_feature, MODEL_VERSION
-from schemas import P1FeatureCollection
+from ml.tests.test_fixtures import MOCK_HOTSPOT_GEOJSON
+from ml.api_handler import process_hotspot_feature, MODEL_VERSION
+from ml.schemas import P1FeatureCollection
 from pydantic import ValidationError
 
 def test_process_hotspot_feature_complete():

@@ -4,7 +4,7 @@ import os
 import json
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from api_handler import process_hotspot_feature
+from ml.api_handler import process_hotspot_feature
 
 def test_p1_integration_payload():
     payload_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'fixtures/p1/example_payload.json'))
