@@ -39,11 +39,11 @@ def test_list_cities():
     city_ids = [c["city_id"] for c in data]
     assert "mumbai" in city_ids
     assert "dhanbad" in city_ids
-    
+
     # Real data counts check
     mumbai_city = next(c for c in data if c["city_id"] == "mumbai")
     dhanbad_city = next(c for c in data if c["city_id"] == "dhanbad")
-    
+
     assert mumbai_city["feature_count"] == 2294
     assert dhanbad_city["feature_count"] == 2989
 
@@ -59,6 +59,18 @@ def test_city_map_mumbai():
     assert "lst_c" in feature["properties"]
     assert "risk_category" in feature["properties"]
     assert "hotspot_context" in feature["properties"]
+    assert "hotspot_context" in feature["properties"]
+
+    # Verify canonical hotspot rule
+    hotspots = [f for f in data["features"] if f["properties"].get("hotspot_id") is not None]
+    non_hotspots = [f for f in data["features"] if f["properties"].get("hotspot_id") is None]
+
+
+    assert len(hotspots) + len(non_hotspots) == 2294
+    for hs in hotspots:
+        assert hs["properties"]["risk_category"] in ("high", "extreme")
+    for nhs in non_hotspots:
+        assert nhs["properties"]["risk_category"] not in ("high", "extreme")
 
 def test_city_map_dhanbad():
     response = client.get("/api/cities/dhanbad/map")
@@ -66,6 +78,10 @@ def test_city_map_dhanbad():
     data = response.json()
     assert data["type"] == "FeatureCollection"
     assert len(data["features"]) == 2989
+    hotspots = [f for f in data["features"] if f["properties"].get("hotspot_id") is not None]
+    non_hotspots = [f for f in data["features"] if f["properties"].get("hotspot_id") is None]
+
+    assert len(hotspots) + len(non_hotspots) == 2989
 
 def test_invalid_city():
     response = client.get("/api/cities/invalid_city/map")
@@ -76,18 +92,18 @@ def test_hotspot_detail_and_p2_regression():
     # We will pick the first feature from Mumbai
     mumbai_map = client.get("/api/cities/mumbai/map").json()
     feature_id = mumbai_map["features"][0]["properties"]["feature_id"]
-    
+
     response = client.get(f"/api/hotspots/mumbai/{feature_id}")
     assert response.status_code == 200
     data = response.json()
-    
+
     # Verify structure
     assert "feature" in data
     assert "risk" in data
-    
+
     feature = data["feature"]
     risk = data["risk"]
-    
+
     # P1 Integrity Check
     props = feature["properties"]
     assert "lst_c" in props
@@ -95,10 +111,10 @@ def test_hotspot_detail_and_p2_regression():
     assert "feature_id" in props
     assert "source" in props
     assert "valid_pixel_percent" in props
-    
+
     # P2 Regression Check
     canonical_p2 = process_hotspot_feature(feature)
-    
+
     assert risk["p2_analysis"]["risk_score"] == canonical_p2["p2_analysis"]["risk_score"]
     assert risk["p2_analysis"]["risk_category"] == canonical_p2["p2_analysis"]["risk_category"]
     assert risk["p2_analysis"]["vulnerability_score"] == canonical_p2["p2_analysis"]["vulnerability_score"]
@@ -108,7 +124,7 @@ def test_hotspot_detail_and_p2_regression():
 def test_security_path_traversal():
     response = client.get("/api/hotspots/../../etc/passwd/123")
     assert response.status_code == 404
-    
+
     response = client.get("/api/cities/../../etc/passwd/map")
     assert response.status_code == 404
 
@@ -116,26 +132,26 @@ def test_optimization():
     # Pick a few hotspots
     mumbai_map = client.get("/api/cities/mumbai/map").json()
     hotspot_ids = [f["properties"]["feature_id"] for f in mumbai_map["features"][:3]]
-    
+
     request_data = {
         "city_id": "mumbai",
         "hotspot_ids": hotspot_ids,
         "resource_budget": 5.0,
         "interventions": ["COOL_ROOF", "TREE_CANOPY"]
     }
-    
+
     response = client.post("/api/optimization/optimize", json=request_data)
     assert response.status_code == 200
     data = response.json()
-    
+
     # Semantic verification
     assert "portfolio_objective_value" in data
     assert "total_expected_cooling_celsius" in data
-    
+
     # Make sure we didn't silently rename or change semantics
     assert data["portfolio_objective_value"] != data["total_expected_cooling_celsius"]
     assert data["value_status"] == ValueStatus.RECOMMENDED.value
-    
+
 def test_optimization_limit():
     request_data = {
         "city_id": "mumbai",
@@ -143,7 +159,7 @@ def test_optimization_limit():
         "resource_budget": 5.0,
         "interventions": ["COOL_ROOF"]
     }
-    
+
     response = client.post("/api/optimization/optimize", json=request_data)
     assert response.status_code == 400
     assert response.json()["detail"]["error"] == "limit_exceeded"

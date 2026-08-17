@@ -2,11 +2,11 @@ import { Check, Lock } from 'lucide-react';
 import { getLayersByCategory } from '../../data/layers';
 
 interface LayerPanelProps {
-  activeLayer: string | null;
-  setActiveLayer: (id: string | null) => void;
+  activeLayers: string[];
+  toggleLayer: (id: string) => void;
 }
 
-export default function LayerPanel({ activeLayer, setActiveLayer }: LayerPanelProps) {
+export default function LayerPanel({ activeLayers, toggleLayer }: LayerPanelProps) {
   const categories = [
     { id: 'observations', label: 'Observations' },
     { id: 'environmental', label: 'Environmental' },
@@ -29,13 +29,13 @@ export default function LayerPanel({ activeLayer, setActiveLayer }: LayerPanelPr
             <div className="space-y-1">
               {getLayersByCategory(category.id).map(layer => {
                 const isAvailable = layer.availability === 'available';
-                const isActive = activeLayer === layer.id;
+                const isActive = activeLayers.includes(layer.id);
                 
                 return (
                   <button
                     key={layer.id}
                     disabled={!isAvailable}
-                    onClick={() => isAvailable && setActiveLayer(isActive ? null : layer.id)}
+                    onClick={() => isAvailable && toggleLayer(layer.id)}
                     className={`w-full flex flex-col items-start p-2 rounded-md transition-colors ${
                       !isAvailable 
                         ? 'opacity-60 cursor-not-allowed' 

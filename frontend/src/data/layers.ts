@@ -1,4 +1,4 @@
-﻿import type { LayerDefinition } from './layerTypes';
+import type { LayerDefinition } from './layerTypes';
 
 export const LAYERS: LayerDefinition[] = [
   {
@@ -59,9 +59,8 @@ export const LAYERS: LayerDefinition[] = [
     label: 'Hotspots',
     category: 'risk',
     description: 'Identified urban heat hotspots.',
-    availability: 'pending',
-    owner: 'p2',
-    pendingReason: 'Pending P2'
+    availability: 'available',
+    owner: 'p2'
   },
   {
     id: 'risk',

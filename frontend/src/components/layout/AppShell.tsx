@@ -1,31 +1,90 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from './Header';
 import Sidebar, { type SidebarTab } from './Sidebar';
 import LayerPanel from '../layers/LayerPanel';
 import MapEngine from '../map/MapEngine';
 import FeaturePanel from '../panels/FeaturePanel';
-import type { SpatialFeature } from '../../data/types';
+import { useCities } from '../../api/queries';
 
 export default function AppShell() {
-  const [selectedFeature, setSelectedFeature] = useState<SpatialFeature | null>(null);
+  const [selectedFeatureId, setSelectedFeatureId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<SidebarTab>('layers');
-  const [activeLayer, setActiveLayer] = useState<string | null>('lst');
+  const [activeLayers, setActiveLayers] = useState<string[]>(['lst', 'hotspots']);
+  const [activeCityId, setActiveCityId] = useState<string | null>(null);
+
+  const { data: cities, isLoading: isCitiesLoading, isError: isCitiesError, error: citiesError } = useCities();
+
+  const toggleLayer = (layerId: string) => {
+    setActiveLayers(prev =>
+      prev.includes(layerId)
+        ? prev.filter(id => id !== layerId)
+        : [...prev, layerId]
+    );
+  };
+
+  useEffect(() => {
+    // Set default city to 'mumbai' if available, otherwise first city in the list
+    if (cities && cities.length > 0 && !activeCityId) {
+      const mumbai = cities.find(c => c.city_id === 'mumbai');
+      if (mumbai) {
+        setActiveCityId(mumbai.city_id);
+      } else {
+        setActiveCityId(cities[0].city_id);
+      }
+    }
+  }, [cities, activeCityId]);
+
+  const handleCityChange = (cityId: string) => {
+    setActiveCityId(cityId);
+    setSelectedFeatureId(null); // Clear selected feature when city changes
+  };
 
   return (
     <div className="flex flex-col h-screen w-screen bg-zinc-900 text-zinc-100 overflow-hidden">
       <Header />
       <div className="flex flex-1 overflow-hidden relative">
-        <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+        <Sidebar
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          cities={cities}
+          activeCityId={activeCityId}
+          onCityChange={handleCityChange}
+        />
 
         {activeTab === 'layers' && (
-          <LayerPanel activeLayer={activeLayer} setActiveLayer={setActiveLayer} />
+          <LayerPanel activeLayers={activeLayers} toggleLayer={toggleLayer} />
         )}
 
         <main className="flex-1 relative h-full">
-          <MapEngine activeLayerId={activeLayer} onSelectFeature={setSelectedFeature} />
-          {selectedFeature && (
+          {isCitiesLoading && (
+            <div className="absolute inset-0 z-50 flex items-center justify-center bg-zinc-900 bg-opacity-75">
+              <div className="text-zinc-300 animate-pulse">Loading regions...</div>
+            </div>
+          )}
+
+          {isCitiesError && (
+            <div className="absolute inset-0 z-50 flex items-center justify-center bg-zinc-900 bg-opacity-75">
+              <div className="text-red-400 bg-red-900/20 p-4 rounded-md border border-red-800">
+                Failed to load regions. {citiesError?.message || 'Backend unavailable.'}
+              </div>
+            </div>
+          )}
+
+          {activeCityId && (
+            <MapEngine
+              activeCityId={activeCityId}
+              activeLayers={activeLayers}
+              onSelectFeatureId={setSelectedFeatureId}
+            />
+          )}
+
+          {selectedFeatureId && activeCityId && (
             <div className="absolute top-4 right-4 z-20">
-              <FeaturePanel feature={selectedFeature} onClose={() => setSelectedFeature(null)} />
+              <FeaturePanel
+                activeCityId={activeCityId}
+                featureId={selectedFeatureId}
+                onClose={() => setSelectedFeatureId(null)}
+              />
             </div>
           )}
         </main>

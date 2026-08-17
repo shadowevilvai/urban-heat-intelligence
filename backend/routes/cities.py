@@ -10,7 +10,7 @@ def list_cities():
         raise HTTPException(status_code=503, detail="Data store not initialized")
     return list(data_store.cities.values())
 
-@router.get("/{city_id}/map", response_model=MapFeatureCollection)
+@router.get("/{city_id}/map", response_model=MapFeatureCollection, response_model_exclude_none=True)
 def get_city_map(city_id: str):
     if city_id not in data_store.allowed_cities:
         raise HTTPException(status_code=404, detail="City not found")

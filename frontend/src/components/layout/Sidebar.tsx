@@ -1,13 +1,17 @@
 import { Map, Layers, ThermometerSun, Database } from 'lucide-react';
+import type { City } from '../../data/types';
 
 export type SidebarTab = 'map' | 'layers' | 'mitigation' | 'sources';
 
 interface SidebarProps {
   activeTab: SidebarTab;
   onTabChange: (tab: SidebarTab) => void;
+  cities: City[] | undefined;
+  activeCityId: string | null;
+  onCityChange: (cityId: string) => void;
 }
 
-export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
+export default function Sidebar({ activeTab, onTabChange, cities, activeCityId, onCityChange }: SidebarProps) {
   const tabs = [
     { id: 'map' as const, label: 'Heat Map', icon: Map },
     { id: 'layers' as const, label: 'Data Layers', icon: Layers },
@@ -41,9 +45,25 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
         })}
       </nav>
       <div className="p-4 border-t border-zinc-800">
-        <div className="text-xs text-zinc-500">
-          <p>Mumbai AOI Active</p>
-          <p className="mt-1">P1 Observational Data</p>
+        <div className="text-xs text-zinc-500 mb-2">
+          <label htmlFor="city-select" className="block text-zinc-400 font-semibold mb-1 uppercase tracking-wider">Active Region</label>
+          {cities && cities.length > 0 ? (
+            <select
+              id="city-select"
+              value={activeCityId || ''}
+              onChange={(e) => onCityChange(e.target.value)}
+              className="w-full bg-zinc-900 border border-zinc-700 text-white rounded p-1"
+            >
+              <option value="" disabled>Select a city</option>
+              {cities.map(city => (
+                <option key={city.city_id} value={city.city_id}>
+                  {city.display_name} ({city.feature_count} features)
+                </option>
+              ))}
+            </select>
+          ) : (
+            <div className="text-zinc-500 italic">Loading regions...</div>
+          )}
         </div>
       </div>
     </aside>
