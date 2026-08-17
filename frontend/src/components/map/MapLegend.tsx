@@ -1,14 +1,18 @@
 
 
+import type { OptimizeResponse } from '../../data/types';
+import { TreePine, Home } from 'lucide-react';
+
 interface MapLegendProps {
   activeLayers: string[];
   lstBounds: { min: number, max: number } | null;
   hotspotCount: number;
   currentZoom: number;
+  optimizationData?: { cityId: string; data: OptimizeResponse } | null;
 }
 
-export default function MapLegend({ activeLayers, lstBounds, hotspotCount, currentZoom }: MapLegendProps) {
-  if (activeLayers.length === 0) return null;
+export default function MapLegend({ activeLayers, lstBounds, hotspotCount, currentZoom, optimizationData }: MapLegendProps) {
+  if (activeLayers.length === 0 && !optimizationData) return null;
 
   const isLstActive = activeLayers.includes('lst');
   const isHotspotsActive = activeLayers.includes('hotspots');
@@ -52,6 +56,32 @@ export default function MapLegend({ activeLayers, lstBounds, hotspotCount, curre
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {optimizationData && optimizationData.data.hotspot_allocations.length > 0 && (
+        <div className="bg-zinc-900/90 backdrop-blur border border-zinc-800 rounded-md p-3 min-w-[200px]">
+          <h4 className="text-xs font-semibold text-emerald-400 mb-2 uppercase tracking-wider flex justify-between">
+            <span>P3 Recommendations</span>
+            <span className="text-emerald-500">{optimizationData.data.hotspot_allocations.length}</span>
+          </h4>
+          <div className="flex flex-col gap-2 text-xs text-zinc-400 mt-2">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500 border border-white">
+                <TreePine className="text-white w-3 h-3" />
+              </div>
+              <span>Tree Canopy</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center w-5 h-5 rounded-full bg-sky-500 border border-white">
+                <Home className="text-white w-3 h-3" />
+              </div>
+              <span>Cool Roof</span>
+            </div>
+            <div className="mt-1 text-[10px] text-zinc-500 italic">
+              Size indicates allocation intensity
+            </div>
+          </div>
         </div>
       )}
 

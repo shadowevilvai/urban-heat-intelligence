@@ -1,16 +1,19 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
-import Map, { Source, Layer, NavigationControl } from 'react-map-gl/maplibre';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import Map, { Source, Layer, NavigationControl, Marker } from 'react-map-gl/maplibre';
 import type { MapLayerMouseEvent, MapRef } from 'react-map-gl/maplibre';
 import { useCityMap } from '../../api/queries';
 import MapLegend from './MapLegend';
+import type { OptimizeResponse, MapFeature } from '../../data/types';
+import { TreePine, Home } from 'lucide-react';
 
 interface MapEngineProps {
   activeCityId: string;
   activeLayers: string[];
   onSelectFeatureId: (featureId: string | null) => void;
+  optimizationData?: { cityId: string; data: OptimizeResponse } | null;
 }
 
-export default function MapEngine({ activeCityId, activeLayers, onSelectFeatureId }: MapEngineProps) {
+export default function MapEngine({ activeCityId, activeLayers, onSelectFeatureId, optimizationData }: MapEngineProps) {
   const mapRef = useRef<MapRef>(null);
   const { data: geojsonData, isLoading, isError } = useCityMap(activeCityId);
   const [lstBounds, setLstBounds] = useState<{min: number, max: number} | null>(null);
@@ -88,6 +91,44 @@ export default function MapEngine({ activeCityId, activeLayers, onSelectFeatureI
   if (isHotspotsActive) {
     interactiveLayers.push('p2-hotspots');
   }
+
+  // Resolve allocations to geometric coordinates
+  const p3Markers = useMemo(() => {
+    if (!optimizationData || optimizationData.cityId !== activeCityId || !geojsonData) {
+      return [];
+    }
+    
+    const markers: Array<{
+      id: string;
+      longitude: number;
+      latitude: number;
+      intervention: string;
+      intensity: number;
+      featureId: string;
+    }> = [];
+
+    const featureMap = new globalThis.Map<string, MapFeature>();
+    for (const f of geojsonData.features) {
+      featureMap.set(f.properties.feature_id, f);
+    }
+
+    for (const alloc of optimizationData.data.hotspot_allocations) {
+      const f = featureMap.get(alloc.hotspot_id);
+      if (f && f.geometry.type === 'Point') {
+        const [lng, lat] = f.geometry.coordinates;
+        markers.push({
+          id: `${alloc.hotspot_id}-${alloc.intervention}`,
+          longitude: lng,
+          latitude: lat,
+          intervention: alloc.intervention,
+          intensity: alloc.intensity_allocated,
+          featureId: alloc.hotspot_id,
+        });
+      }
+    }
+
+    return markers;
+  }, [optimizationData, activeCityId, geojsonData]);
 
   return (
     <div className="absolute inset-0 bg-zinc-800">
@@ -213,6 +254,37 @@ export default function MapEngine({ activeCityId, activeLayers, onSelectFeatureI
           </Source>
         )}
 
+        {/* P3 Recommendation Markers */}
+        {p3Markers.map(m => (
+          <Marker
+            key={m.id}
+            longitude={m.longitude}
+            latitude={m.latitude}
+            anchor="center"
+            onClick={(e) => {
+              e.originalEvent.stopPropagation();
+              onSelectFeatureId(m.featureId);
+            }}
+          >
+            <div 
+              className={`flex items-center justify-center rounded-full border-2 border-white shadow-lg cursor-pointer transition-transform hover:scale-110 
+                ${m.intervention === 'tree_canopy' ? 'bg-emerald-500' : 'bg-sky-500'}
+              `}
+              style={{
+                width: `${Math.max(20, 16 + m.intensity * 12)}px`,
+                height: `${Math.max(20, 16 + m.intensity * 12)}px`
+              }}
+              title={`${m.intervention === 'tree_canopy' ? 'Tree Canopy' : 'Cool Roof'} (Intensity: ${m.intensity.toFixed(2)})`}
+            >
+              {m.intervention === 'tree_canopy' ? (
+                <TreePine className="text-white" size={Math.max(12, 10 + m.intensity * 6)} />
+              ) : (
+                <Home className="text-white" size={Math.max(12, 10 + m.intensity * 6)} />
+              )}
+            </div>
+          </Marker>
+        ))}
+
         <NavigationControl position="bottom-right" showCompass={false} />
 
         <MapLegend
@@ -220,6 +292,7 @@ export default function MapEngine({ activeCityId, activeLayers, onSelectFeatureI
           lstBounds={lstBounds}
           hotspotCount={hotspotCount}
           currentZoom={currentZoom}
+          optimizationData={optimizationData}
         />
       </Map>
     </div>

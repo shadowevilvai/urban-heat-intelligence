@@ -4,13 +4,16 @@ import Sidebar, { type SidebarTab } from './Sidebar';
 import LayerPanel from '../layers/LayerPanel';
 import MapEngine from '../map/MapEngine';
 import FeaturePanel from '../panels/FeaturePanel';
+import MitigationPanel from '../panels/MitigationPanel';
 import { useCities } from '../../api/queries';
+import type { OptimizeResponse } from '../../data/types';
 
 export default function AppShell() {
   const [selectedFeatureId, setSelectedFeatureId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<SidebarTab>('layers');
   const [activeLayers, setActiveLayers] = useState<string[]>(['lst', 'hotspots']);
   const [activeCityId, setActiveCityId] = useState<string | null>(null);
+  const [optimizationData, setOptimizationData] = useState<{cityId: string; data: OptimizeResponse} | null>(null);
 
   const { data: cities, isLoading: isCitiesLoading, isError: isCitiesError, error: citiesError } = useCities();
 
@@ -37,6 +40,7 @@ export default function AppShell() {
   const handleCityChange = (cityId: string) => {
     setActiveCityId(cityId);
     setSelectedFeatureId(null); // Clear selected feature when city changes
+    setOptimizationData(null);  // Clear P3 recommendations when city changes
   };
 
   return (
@@ -53,6 +57,18 @@ export default function AppShell() {
 
         {activeTab === 'layers' && (
           <LayerPanel activeLayers={activeLayers} toggleLayer={toggleLayer} />
+        )}
+
+        {activeTab === 'mitigation' && (
+          <MitigationPanel
+            activeCityId={activeCityId}
+            optimizationData={optimizationData}
+            onOptimizationSuccess={(data) => {
+              if (activeCityId) {
+                setOptimizationData({ cityId: activeCityId, data });
+              }
+            }}
+          />
         )}
 
         <main className="flex-1 relative h-full">
@@ -75,6 +91,7 @@ export default function AppShell() {
               activeCityId={activeCityId}
               activeLayers={activeLayers}
               onSelectFeatureId={setSelectedFeatureId}
+              optimizationData={optimizationData}
             />
           )}
 
@@ -84,6 +101,7 @@ export default function AppShell() {
                 activeCityId={activeCityId}
                 featureId={selectedFeatureId}
                 onClose={() => setSelectedFeatureId(null)}
+                optimizationData={optimizationData}
               />
             </div>
           )}

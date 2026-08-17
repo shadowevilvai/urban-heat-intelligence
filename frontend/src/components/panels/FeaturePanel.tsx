@@ -1,13 +1,15 @@
-import { X, MapPin, AlertTriangle } from 'lucide-react';
+import { X, MapPin, AlertTriangle, TreePine, Home, CheckCircle2 } from 'lucide-react';
 import { useHotspotDetail } from '../../api/queries';
+import type { OptimizeResponse } from '../../data/types';
 
 interface FeaturePanelProps {
   activeCityId: string;
   featureId: string;
   onClose: () => void;
+  optimizationData?: { cityId: string; data: OptimizeResponse } | null;
 }
 
-export default function FeaturePanel({ activeCityId, featureId, onClose }: FeaturePanelProps) {
+export default function FeaturePanel({ activeCityId, featureId, onClose, optimizationData }: FeaturePanelProps) {
   const { data, isLoading, isError } = useHotspotDetail(activeCityId, featureId);
 
   if (isLoading) {
@@ -37,6 +39,10 @@ export default function FeaturePanel({ activeCityId, featureId, onClose }: Featu
   }
 
   const p1 = data.feature.properties;
+  
+  const p3Allocations = optimizationData?.cityId === activeCityId 
+    ? optimizationData.data.hotspot_allocations.filter(a => a.hotspot_id === featureId)
+    : [];
 
   return (
     <div className="w-80 sm:w-96 bg-zinc-900 border border-zinc-700 shadow-xl rounded-lg overflow-hidden flex flex-col max-h-[calc(100vh-2rem)]">
@@ -56,6 +62,46 @@ export default function FeaturePanel({ activeCityId, featureId, onClose }: Featu
 
       {/* Content */}
       <div className="p-4 overflow-y-auto space-y-6">
+
+        {/* P3 Data: Mitigation Recommendations */}
+        {p3Allocations.length > 0 && (
+          <section>
+            <h3 className="text-xs font-semibold text-emerald-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4" />
+              P3 Recommended Intervention
+            </h3>
+            <div className="space-y-3">
+              {p3Allocations.map(alloc => (
+                <div key={alloc.intervention} className="bg-emerald-950/20 border border-emerald-900/50 p-4 rounded-md">
+                  <div className="flex items-center gap-2 mb-3">
+                    {alloc.intervention === 'tree_canopy' ? (
+                      <TreePine className="text-emerald-500 w-5 h-5" />
+                    ) : (
+                      <Home className="text-sky-500 w-5 h-5" />
+                    )}
+                    <span className="font-semibold text-white">
+                      {alloc.intervention === 'tree_canopy' ? 'Tree Canopy' : 'Cool Roof'}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <span className="block text-xs text-zinc-500 mb-0.5">Intensity</span>
+                      <span className="text-zinc-200 font-medium">{alloc.intensity_allocated.toFixed(2)}</span>
+                    </div>
+                    <div>
+                      <span className="block text-xs text-zinc-500 mb-0.5">Cost Est.</span>
+                      <span className="text-zinc-200 font-medium">{alloc.resource_units_used.toFixed(0)}</span>
+                    </div>
+                    <div className="col-span-2 mt-1">
+                      <span className="block text-xs text-zinc-500 mb-0.5">Expected Cooling</span>
+                      <span className="text-blue-400 font-medium text-lg">-{alloc.expected_cooling_celsius.toFixed(2)} °C</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* P1 Data: Core Observation */}
         <section>
