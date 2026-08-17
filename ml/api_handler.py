@@ -3,6 +3,7 @@ from schemas import P1Feature
 from adapter import adapt_p1_to_p2, is_hotspot, generate_hotspot_id
 from preprocessing import preprocess_features
 from risk_engine import calculate_risk
+from context_classifier import classify_context
 
 MODEL_VERSION = "env-risk-index-v1.0"
 
@@ -69,7 +70,8 @@ def process_hotspot_feature(feature_dict: Dict[str, Any]) -> Dict[str, Any]:
                 }
                 for c in risk_result["contributors"]
             ],
-            "model_version": MODEL_VERSION
+            "model_version": MODEL_VERSION,
+            "hotspot_context": classify_context(props)
         }
     }
     

@@ -1,29 +1,13 @@
 {
   "city": "mumbai",
   "feature_count": 2294,
-  "spatial_bounds": {
-    "min_lon": 72.80194099207735,
-    "max_lon": 72.94746806810471,
-    "min_lat": 18.952880443174696,
-    "max_lat": 19.199467988665504
-  },
-  "statistics": {
-    "min_lst_c": 28.77,
-    "max_lst_c": 50.61,
-    "mean_lst_c": 38.2721,
-    "median_lst_c": 39.65
-  },
-  "m2_comparison": {
-    "m2_mean": 38.2601059603442,
-    "spatial_mean": 38.2721,
-    "absolute_mean_difference": 0.012,
-    "percentage_mean_difference": 0.0313,
-    "explanation_min_max_diff": "The minimum and maximum LST can differ between Milestone 2 (all 30m pixels) and Milestone 3 (spatial sampling) because taking discrete point samples at 450m scale might miss the absolute hottest or absolute coldest single 30m pixel. The mean remains very close because it averages over the entire area."
-  },
-  "limitations": [
-    "Land Surface Temperature (LST), not near-surface air temperature.",
-    "Does not directly represent human thermal comfort or heat-health risk.",
-    "The 450 m representation is a spatial sampling/visualization representation of the underlying LST composite and should not be described as 450 m ground-truth temperature measurements."
-  ],
-  "validation_status": "PASSED"
+  "min_lst_c": 28.77,
+  "max_lst_c": 50.61,
+  "mean_lst_c": 38.27,
+  "source": "Multi-Sensor (Landsat 8/9, Sentinel-2, ESA WorldCover v200)",
+  "resolution_m": 450,
+  "period": {
+    "start": "2023-03-01",
+    "end": "2023-05-31"
+  }
 }

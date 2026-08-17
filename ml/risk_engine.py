@@ -22,12 +22,12 @@ def calculate_group_score(normalized_features: Dict[str, float], base_weights: D
     for feature_name, weight in base_weights.items():
         if feature_name in normalized_features:
             available_weights[feature_name] = weight
-            
+
     if not available_weights:
         return None, {}
-        
+
     total_weight = sum(available_weights.values())
-    
+
     score = 0.0
     effective_weights = {}
     for feature_name, original_weight in available_weights.items():
@@ -35,11 +35,18 @@ def calculate_group_score(normalized_features: Dict[str, float], base_weights: D
         effective_weight = original_weight / total_weight
         effective_weights[feature_name] = effective_weight
         score += normalized_features[feature_name] * effective_weight
-        
+
     return score, effective_weights
 
 def get_risk_category(score: float) -> str:
-    """Categorizes a 0-100 risk score."""
+    """
+    Categorizes a 0-100 risk score into human-readable levels.
+
+    NOTE: These thresholds (>80 extreme, >60 high) are project-defined
+    risk-index thresholds intended for comparative spatial prioritization.
+    They are NOT clinically or empirically validated heat-health thresholds.
+    Sensitivity analysis should be performed post-generation to verify spatial separation.
+    """
     if score >= 80:
         return "extreme"
     elif score >= 60:
@@ -58,10 +65,10 @@ def calculate_risk(normalized_features: Dict[str, float]) -> Dict:
     exposure_score, exposure_effective_weights = calculate_group_score(normalized_features, EXPOSURE_WEIGHTS)
     if exposure_score is None:
         exposure_score = 0.0 # Fallback, should not happen with valid input
-        
+
     # 2. Calculate Environmental Vulnerability (Optional)
     vuln_score, vuln_effective_weights = calculate_group_score(normalized_features, VULNERABILITY_WEIGHTS)
-    
+
     # 3. Combine into Overall Risk Score (0-100 scale)
     if vuln_score is not None:
         # 50% Exposure, 50% Vulnerability
@@ -73,10 +80,10 @@ def calculate_risk(normalized_features: Dict[str, float]) -> Dict:
         overall_risk = exposure_score * 100.0
         final_exposure_multiplier = 1.0
         final_vuln_multiplier = 0.0
-        
+
     # 4. Generate Contributors
     contributors = []
-    
+
     for feature, eff_weight in exposure_effective_weights.items():
         abs_weight = eff_weight * final_exposure_multiplier
         contributors.append({
@@ -84,7 +91,7 @@ def calculate_risk(normalized_features: Dict[str, float]) -> Dict:
             "value": normalized_features[feature],
             "importance": abs_weight
         })
-        
+
     if vuln_score is not None:
         for feature, eff_weight in vuln_effective_weights.items():
             abs_weight = eff_weight * final_vuln_multiplier
@@ -93,10 +100,10 @@ def calculate_risk(normalized_features: Dict[str, float]) -> Dict:
                 "value": normalized_features[feature],
                 "importance": abs_weight
             })
-            
+
     # Sort contributors by importance (descending)
     contributors.sort(key=lambda x: x["importance"], reverse=True)
-    
+
     return {
         "risk_score": overall_risk,
         "risk_category": get_risk_category(overall_risk),

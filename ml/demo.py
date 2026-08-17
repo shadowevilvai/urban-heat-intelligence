@@ -1,6 +1,6 @@
 # ml/demo.py
 import json
-from mock_data import MOCK_HOTSPOT_GEOJSON
+from tests.test_fixtures import MOCK_HOTSPOT_GEOJSON
 from api_handler import process_hotspot_feature
 
 # 1. Grab a fake hotspot feature from our mock data (simulating P1 output)

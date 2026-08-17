@@ -1,29 +1,13 @@
 {
   "city": "dhanbad",
   "feature_count": 2989,
-  "spatial_bounds": {
-    "min_lon": 86.30361971239377,
-    "max_lon": 86.54616483910603,
-    "min_lat": 23.702722507956665,
-    "max_lat": 23.896758609326483
-  },
-  "statistics": {
-    "min_lst_c": 34.85,
-    "max_lst_c": 55.21,
-    "mean_lst_c": 42.7182,
-    "median_lst_c": 42.62
-  },
-  "m2_comparison": {
-    "m2_mean": 42.6730107595162,
-    "spatial_mean": 42.7182,
-    "absolute_mean_difference": 0.0452,
-    "percentage_mean_difference": 0.1059,
-    "explanation_min_max_diff": "The minimum and maximum LST can differ between Milestone 2 (all 30m pixels) and Milestone 3 (spatial sampling) because taking discrete point samples at 450m scale might miss the absolute hottest or absolute coldest single 30m pixel. The mean remains very close because it averages over the entire area."
-  },
-  "limitations": [
-    "Land Surface Temperature (LST), not near-surface air temperature.",
-    "Does not directly represent human thermal comfort or heat-health risk.",
-    "The 450 m representation is a spatial sampling/visualization representation of the underlying LST composite and should not be described as 450 m ground-truth temperature measurements."
-  ],
-  "validation_status": "PASSED"
+  "min_lst_c": 34.85,
+  "max_lst_c": 55.21,
+  "mean_lst_c": 42.72,
+  "source": "Multi-Sensor (Landsat 8/9, Sentinel-2, ESA WorldCover v200)",
+  "resolution_m": 450,
+  "period": {
+    "start": "2023-03-01",
+    "end": "2023-05-31"
+  }
 }
