@@ -1,0 +1,14 @@
+{
+  "source": "WorldPop",
+  "dataset": "India Spatial Distribution of Population (Constrained) R2025A",
+  "year": 2023,
+  "resolution": "100m",
+  "crs": "EPSG:4326",
+  "units": "persons per grid cell",
+  "license": "CC BY 4.0",
+  "url": "https://www.worldpop.org/",
+  "coverage": [
+    "Mumbai",
+    "Dhanbad"
+  ]
+}
