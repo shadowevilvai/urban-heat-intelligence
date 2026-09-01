@@ -9,6 +9,7 @@ class MapFeatureProperties(BaseModel):
     lst_c: float
     risk_category: str
     hotspot_context: str
+    hotspot_id: Optional[str] = None
 
 class MapFeatureGeometry(BaseModel):
     type: str
